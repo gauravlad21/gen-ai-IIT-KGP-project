@@ -1,0 +1,18 @@
+[project]
+name = "financial-document-copilot"
+version = "0.1.0"
+requires-python = ">=3.10"
+dependencies = [
+    "chromadb>=0.5",
+    "datasets>=2.19",
+    "pillow>=10.0",
+    "streamlit>=1.36",
+]
+
+[project.optional-dependencies]
+embeddings = [
+    "sentence-transformers>=3.0",
+]
+
+[tool.uv]
+package = false
