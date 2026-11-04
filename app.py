@@ -4,13 +4,15 @@ import uuid
 
 import streamlit as st
 
-from src.data_loader import load_saved_sample
-from src.pipeline import PipelineStrategies, run_pipeline
+from src.config import AppConfig
+from src.data import load_saved_sample
+from src.pipeline import build_strategies_from_config, run_pipeline
 
 
 @st.cache_resource
 def load_app():
-    return load_saved_sample(), PipelineStrategies()
+    config = AppConfig.from_env()
+    return load_saved_sample(), build_strategies_from_config(config), config
 
 
 def main():
@@ -19,12 +21,19 @@ def main():
     st.caption("Answers are retrieved from a 10-document sample; this is a project demo.")
 
     try:
-        documents, strategies = load_app()
+        documents, strategies, config = load_app()
     except FileNotFoundError:
-        st.error("Sample data is missing. Run `uv run python scripts/download_sample.py`.")
+        st.error("Sample data is missing. Run `uv run python -m scripts.download_sample`.")
+        return
+    except ValueError as exc:
+        st.error(f"Invalid strategy config: {exc}")
         return
 
     st.write(f"Loaded {len(documents)} sample documents.")
+    st.caption(
+        f"Config: search={config.search_strategy}, rag={config.rag_strategy}, "
+        f"prompt={config.prompt_strategy}, answer={config.answer_strategy}"
+    )
     if "session_id" not in st.session_state:
         st.session_state.session_id = uuid.uuid4().hex
     question = st.text_input("Ask a question about the documents")

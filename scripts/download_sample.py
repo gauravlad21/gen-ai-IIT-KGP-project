@@ -3,7 +3,7 @@
 import sys
 from pathlib import Path
 
-from src.data_loader import load_dataset_subset, save_sample
+from src.data import load_dataset_subset, save_sample
 
 
 if __name__ == "__main__":

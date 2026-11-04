@@ -3,18 +3,16 @@
 from dataclasses import dataclass, field
 from typing import Any, Callable
 
-from src.data_loader import Document
+from src.models import Document, Evidence
 from src.strategies import (
-    AnswerStrategy,
+    AnswerStrategyBase,
     AutoRAG,
     ConversationMemory,
     DatasetAnswer,
-    Evidence,
-    Evaluator,
-    MemoryStrategy,
-    PromptStrategy,
-    RAGStrategy,
-    SimpleRAG,
+    EvaluatorBase,
+    MemoryStrategyBase,
+    PromptStrategyBase,
+    RAGStrategyBase,
     SimpleEvaluator,
     SimplePrompt,
 )
@@ -24,11 +22,11 @@ from src.strategies import (
 class PipelineStrategies:
     """Swap one component at a time; the rest of the flow remains unchanged."""
 
-    rag: RAGStrategy = field(default_factory=AutoRAG)
-    answerer: AnswerStrategy = field(default_factory=DatasetAnswer)
-    prompt: PromptStrategy = field(default_factory=SimplePrompt)
-    memory: MemoryStrategy = field(default_factory=ConversationMemory)
-    evaluator: Evaluator = field(default_factory=SimpleEvaluator)
+    rag: RAGStrategyBase = field(default_factory=AutoRAG)
+    answerer: AnswerStrategyBase = field(default_factory=DatasetAnswer)
+    prompt: PromptStrategyBase = field(default_factory=SimplePrompt)
+    memory: MemoryStrategyBase = field(default_factory=ConversationMemory)
+    evaluator: EvaluatorBase = field(default_factory=SimpleEvaluator)
     request_validator: Callable[[str], None] | None = None
     response_validator: Callable[[dict, list[Evidence]], dict] | None = None
     router: Callable[[str, Any], str] | None = None
@@ -51,8 +49,7 @@ def validate_response(answer: dict, evidence: list[Evidence]) -> dict:
     valid_ids = {item.doc_id for item in evidence}
     citations = answer.get("citations", [])
     if not isinstance(citations, list) or any(
-        not isinstance(item, dict) or item.get("doc_id") not in valid_ids
-        for item in citations
+        not isinstance(item, dict) or item.get("doc_id") not in valid_ids for item in citations
     ):
         return {
             "answer": "I cannot verify the answer citation.",

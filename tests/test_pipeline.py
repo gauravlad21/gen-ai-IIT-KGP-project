@@ -1,7 +1,9 @@
 import unittest
 
-from src.data_loader import Document, QAPair, parse_qa_pairs
-from src.pipeline import PipelineStrategies, run_pipeline
+from src.config import AppConfig
+from src.data import parse_qa_pairs
+from src.models import Document, QAPair
+from src.pipeline import PipelineStrategies, build_strategies_from_config, run_pipeline
 from src.strategies import (
     CriticAnswer,
     FixedSizeChunking,
@@ -24,6 +26,17 @@ class PipelineTests(unittest.TestCase):
             )
         ]
         self.strategies = PipelineStrategies(rag=SimpleRAG(KeywordSearch()))
+        self.multi_qa_documents = [
+            Document(
+                doc_id="invoice-2",
+                content="Invoice with multiple fields.",
+                qa_pairs=[
+                    QAPair("What company issued the invoice?", "Mallard Media Services"),
+                    QAPair("What city is listed?", "New York"),
+                    QAPair("What is invoice date?", "June 19, 1995"),
+                ],
+            )
+        ]
 
     def test_pipeline_answers_with_dataset_citation(self):
         result = run_pipeline(
@@ -99,6 +112,27 @@ class PipelineTests(unittest.TestCase):
         )
         self.assertIn("Use only evidence", prompts[0])
         self.assertEqual(result["answer"]["answer"], "Test answer")
+
+    def test_build_strategies_from_config(self):
+        config = AppConfig(
+            search_strategy="keyword",
+            rag_strategy="simple",
+            prompt_strategy="decomposition",
+            answer_strategy="critic",
+            memory_strategy="none",
+            evaluator_strategy="simple",
+            chunking_strategy="whole",
+            embedder_strategy="hashing",
+            retrieval_limit=1,
+        )
+        strategies = build_strategies_from_config(config)
+        result = run_pipeline(
+            "What company issued the invoice?",
+            self.multi_qa_documents,
+            strategies=strategies,
+        )
+        self.assertEqual(len(result["evidence"]), 1)
+        self.assertFalse(result["history"])
 
 
 if __name__ == "__main__":
