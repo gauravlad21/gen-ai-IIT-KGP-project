@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Metrics Dashboard</title>
+    <style>
+      body { font-family: Arial, sans-serif; margin: 2rem; }
+      table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
+      th, td { border: 1px solid #ddd; padding: 0.4rem; text-align: left; }
+      th { background: #f6f6f6; }
+      .controls { margin-bottom: 1rem; }
+    </style>
+  </head>
+  <body>
+    <h1>Run Metrics Dashboard</h1>
+    <div class="controls">
+      <label for="limit">Rows:</label>
+      <input id="limit" type="number" value="100" min="1" max="1000" />
+      <button id="refresh">Refresh</button>
+      <a href="/" style="margin-left:1rem">Back to query UI</a>
+    </div>
+    <table id="metricsTable">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Time</th>
+          <th>Run</th>
+          <th>Question</th>
+          <th>Route</th>
+          <th>Search</th>
+          <th>RAG</th>
+          <th>Prompt</th>
+          <th>Answer</th>
+          <th>Memory</th>
+          <th>Evaluator</th>
+          <th>Retrieved</th>
+          <th>Citation</th>
+          <th>Refused</th>
+          <th>Latency (ms)</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <script>
+      async function loadRows() {
+        const limit = document.getElementById("limit").value || 100;
+        const response = await fetch(`/api/metrics?limit=${limit}`);
+        const data = await response.json();
+        const tbody = document.querySelector("#metricsTable tbody");
+        tbody.innerHTML = "";
+        for (const row of data.rows) {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${row.id}</td>
+            <td>${row.created_at}</td>
+            <td>${row.run_name}</td>
+            <td>${row.question}</td>
+            <td>${row.route}</td>
+            <td>${row.search_strategy}</td>
+            <td>${row.rag_strategy}</td>
+            <td>${row.prompt_strategy}</td>
+            <td>${row.answer_strategy}</td>
+            <td>${row.memory_strategy}</td>
+            <td>${row.evaluator_strategy}</td>
+            <td>${row.retrieved_count}</td>
+            <td>${row.has_citation}</td>
+            <td>${row.refused}</td>
+            <td>${Number(row.latency_ms).toFixed(2)}</td>
+          `;
+          tbody.appendChild(tr);
+        }
+      }
+      document.getElementById("refresh").addEventListener("click", loadRows);
+      loadRows();
+    </script>
+  </body>
+  </html>

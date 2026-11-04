@@ -29,6 +29,7 @@ class AppConfig:
     embedding_model_name: str = "sentence-transformers/all-MiniLM-L6-v2"
     chroma_path: str = "data/processed/chroma"
     chroma_collection: str = "finance_sample"
+    metrics_db_path: str = "data/processed/metrics.sqlite3"
     chunk_size: int = 800
     chunk_overlap: int = 100
     retrieval_limit: int = 4
@@ -48,6 +49,7 @@ class AppConfig:
             embedding_model_name=os.getenv("EMBEDDING_MODEL_NAME", cls.embedding_model_name),
             chroma_path=os.getenv("CHROMA_PATH", cls.chroma_path),
             chroma_collection=os.getenv("CHROMA_COLLECTION", cls.chroma_collection),
+            metrics_db_path=os.getenv("METRICS_DB_PATH", cls.metrics_db_path),
             chunk_size=int(os.getenv("CHUNK_SIZE", str(cls.chunk_size))),
             chunk_overlap=int(os.getenv("CHUNK_OVERLAP", str(cls.chunk_overlap))),
             retrieval_limit=int(os.getenv("RETRIEVAL_LIMIT", str(cls.retrieval_limit))),

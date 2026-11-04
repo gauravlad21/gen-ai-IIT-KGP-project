@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Financial Copilot Frontend</title>
+    <style>
+      body { font-family: Arial, sans-serif; margin: 2rem; max-width: 900px; }
+      textarea, input, button { font-size: 1rem; }
+      textarea { width: 100%; min-height: 80px; }
+      .card { border: 1px solid #ddd; padding: 1rem; margin-top: 1rem; border-radius: 8px; }
+      pre { white-space: pre-wrap; background: #f6f6f6; padding: 0.75rem; border-radius: 6px; }
+      .row { margin-top: 0.75rem; }
+    </style>
+  </head>
+  <body>
+    <h1>Financial Document Copilot</h1>
+    <p>Simple frontend calling FastAPI endpoint <code>/api/query</code>.</p>
+
+    <div class="card">
+      <div class="row">
+        <label for="runName">Run name</label><br />
+        <input id="runName" value="interactive-ui" />
+      </div>
+      <div class="row">
+        <label for="sessionId">Session ID</label><br />
+        <input id="sessionId" value="ui-session" />
+      </div>
+      <div class="row">
+        <label for="question">Question</label>
+        <textarea id="question" placeholder="Ask a finance document question"></textarea>
+      </div>
+      <div class="row">
+        <button id="askBtn">Ask</button>
+        <a href="/dashboard" style="margin-left: 1rem">Open dashboard</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Answer</h3>
+      <pre id="answer">No response yet.</pre>
+      <h4>Metrics</h4>
+      <pre id="metrics">{}</pre>
+      <h4>Steps</h4>
+      <pre id="steps">[]</pre>
+    </div>
+
+    <script>
+      document.getElementById("askBtn").addEventListener("click", async () => {
+        const question = document.getElementById("question").value.trim();
+        if (!question) return;
+        const payload = {
+          question,
+          session_id: document.getElementById("sessionId").value || "ui-session",
+          run_name: document.getElementById("runName").value || "interactive-ui"
+        };
+        const response = await fetch("/api/query", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        const data = await response.json();
+        if (!response.ok) {
+          document.getElementById("answer").textContent = data.detail || "Request failed";
+          return;
+        }
+        document.getElementById("answer").textContent =
+          `${data.answer.answer}\n\nCitations: ${JSON.stringify(data.citations)}`;
+        document.getElementById("metrics").textContent = JSON.stringify(data.metrics, null, 2);
+        document.getElementById("steps").textContent = JSON.stringify(data.steps, null, 2);
+      });
+    </script>
+  </body>
+  </html>

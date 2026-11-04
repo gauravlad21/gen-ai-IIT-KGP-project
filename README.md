@@ -11,10 +11,15 @@ Dataset source: [Sujet-Finance-QA-Vision-100k](https://huggingface.co/datasets/s
 uv sync
 cp .env.example .env
 uv run python -m scripts.download_sample
-uv run streamlit run app.py
+uv run uvicorn src.api.main:app --reload
 ```
 
 The 10-record sample and images are included in `data/sample/`; the command verifies they are present. To fetch a fresh bounded sample, use `TMPDIR=/tmp uv run python -m scripts.download_sample --refresh`. The refresh streams only 10 rows; it does not download the full dataset.
+
+Open:
+
+- `http://127.0.0.1:8000/` for the query frontend
+- `http://127.0.0.1:8000/dashboard` for the metrics comparison table
 
 Run tests with `uv run python -m unittest discover -s tests -v`. Dense search uses ChromaDB with a small deterministic hashing encoder, so the baseline does not need to download an embedding model. Set `CHROMA_PATH` to change the local vector-store directory. For an optional Sentence Transformers encoder, install the extra with `uv sync --extra embeddings`.
 
@@ -30,6 +35,15 @@ The app now builds strategies from config automatically. Set these keys in `.env
 - `EVALUATOR_STRATEGY`: `simple`, `voting`
 - `CHUNKING_STRATEGY`: `whole`, `fixed`, `paragraph`
 - `EMBEDDER_STRATEGY`: `hashing`, `sentence_transformer`
+- `METRICS_DB_PATH`: SQLite path for dashboard rows
+
+## API endpoints
+
+- `GET /api/health` — service status + loaded document count
+- `GET /api/config` — active strategy configuration
+- `POST /api/query` — run end-to-end pipeline and store metrics
+- `GET /api/metrics` — list recent run rows for dashboard comparison
+- `POST /api/metrics` — insert manual comparison rows
 
 ## End-to-end flow
 

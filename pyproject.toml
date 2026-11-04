@@ -5,8 +5,10 @@ requires-python = ">=3.10"
 dependencies = [
     "chromadb>=0.5",
     "datasets>=2.19",
+    "fastapi>=0.115",
     "pillow>=10.0",
     "streamlit>=1.36",
+    "uvicorn>=0.30",
 ]
 
 [project.optional-dependencies]
