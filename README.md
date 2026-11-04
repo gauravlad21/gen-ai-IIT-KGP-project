@@ -18,8 +18,11 @@ The 10-record sample and images are included in `data/sample/`; the command veri
 
 Open:
 
-- `http://127.0.0.1:8000/` for the query frontend
-- `http://127.0.0.1:8000/dashboard` for the metrics comparison table
+- `http://127.0.0.1:8000/` as the **initial home page** (navigator with all links)
+- `http://127.0.0.1:8000/rag` for **Page 1** (RAG/chunking/embedding/vector-db setup + indexing)
+- `http://127.0.0.1:8000/query` for **Page 2** (query UI with chunk/image/score/critique details)
+- `http://127.0.0.1:8000/dashboard` for **Page 3** (trace dashboard with real query executions)
+- `http://127.0.0.1:8000/evaluation` for **Page 4** (evaluation metrics + per-datapoint observations + failure taxonomy + image links)
 
 Run tests with `uv run python -m unittest discover -s tests -v`. Dense search uses ChromaDB with a small deterministic hashing encoder, so the baseline does not need to download an embedding model. Set `CHROMA_PATH` to change the local vector-store directory. For an optional Sentence Transformers encoder, install the extra with `uv sync --extra embeddings`.
 
@@ -44,6 +47,14 @@ The app now builds strategies from config automatically. Set these keys in `.env
 - `POST /api/query` — run end-to-end pipeline and store metrics
 - `GET /api/metrics` — list recent run rows for dashboard comparison
 - `POST /api/metrics` — insert manual comparison rows
+- `GET /api/traces` — query trace rows with retrieved chunks, scores, citations, critiques, and steps
+- `POST /api/rag/setup` — configure RAG/chunking/embedder and index selected dataset subset
+- `GET /api/rag/setups` — setup history rows
+- `POST /api/evaluate` — evaluate on subset and save summary + per-datapoint observations
+- `GET /api/evaluations` — evaluation run summaries
+- `GET /api/evaluations/{id}` — observation rows for one evaluation run
+
+For offline/classroom demos, `POST /api/rag/setup` supports `use_saved_sample=true` to skip downloading and index the already saved local sample.
 
 ## End-to-end flow
 

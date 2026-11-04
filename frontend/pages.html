@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Home - Financial Copilot</title>
+    <style>
+      body { font-family: Arial, sans-serif; margin: 2rem; max-width: 900px; }
+      .card { border: 1px solid #ddd; border-radius: 8px; padding: 1rem; margin-top: 1rem; }
+      ul { line-height: 1.9; }
+      a { font-size: 1.05rem; }
+      code { background: #f6f6f6; padding: 0.15rem 0.35rem; border-radius: 4px; }
+    </style>
+  </head>
+  <body>
+    <h1>Home - Financial Copilot</h1>
+    <p>Use this page as a quick menu for all frontend views.</p>
+
+    <div class="card">
+      <ul>
+        <li><a href="/rag">Page 1 - RAG Setup</a> — select dataset/chunking/embedder/vector DB and index data.</li>
+        <li><a href="/query">Page 2 - Query Explorer</a> — ask questions and inspect retrieved chunks/images/scores.</li>
+        <li><a href="/dashboard">Page 3 - Trace Dashboard</a> — view real query executions and details.</li>
+        <li><a href="/evaluation">Page 4 - Evaluation Report</a> — run subset evaluation and review taxonomy.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <p>Useful API links:</p>
+      <ul>
+        <li><a href="/api/health"><code>/api/health</code></a></li>
+        <li><a href="/api/config"><code>/api/config</code></a></li>
+      </ul>
+    </div>
+  </body>
+  </html>
