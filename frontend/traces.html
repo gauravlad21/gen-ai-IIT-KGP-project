@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Page 3 - Trace Dashboard</title>
+    <style>
+      body { font-family: Arial, sans-serif; margin: 2rem; }
+      table { border-collapse: collapse; width: 100%; font-size: 0.88rem; }
+      th, td { border: 1px solid #ddd; padding: 0.35rem; text-align: left; vertical-align: top; }
+      th { background: #f6f6f6; }
+      .card { border: 1px solid #ddd; padding: 1rem; border-radius: 8px; margin-top: 1rem; overflow-x:auto; }
+      pre { white-space: pre-wrap; background: #f6f6f6; padding: 0.6rem; border-radius: 6px; }
+    </style>
+  </head>
+  <body>
+    <h1>Page 3 - Trace Dashboard</h1>
+    <p>
+      <a href="/pages">All pages</a> |
+      <a href="/rag">Page 1: RAG setup</a> |
+      <a href="/query">Page 2: Query explorer</a> |
+      <a href="/evaluation">Page 4: Evaluation report</a>
+    </p>
+    <div class="card">
+      <label>Rows:</label>
+      <input id="limit" type="number" value="50" min="1" max="500" />
+      <button id="refresh">Refresh</button>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th><th>Time</th><th>Run</th><th>Session</th><th>Question</th><th>Route</th><th>Latency</th><th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="traceBody"></tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3>Trace details</h3>
+      <pre id="traceDetails">Select a row to inspect details.</pre>
+    </div>
+
+    <script>
+      let traces = [];
+      async function loadTraces() {
+        const limit = Number(document.getElementById("limit").value || 50);
+        const response = await fetch(`/api/traces?limit=${limit}`);
+        const data = await response.json();
+        traces = data.rows;
+        const body = document.getElementById("traceBody");
+        body.innerHTML = "";
+        traces.forEach((row, index) => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${row.id}</td><td>${row.created_at}</td><td>${row.run_name}</td>
+            <td>${row.session_id}</td><td>${row.question}</td><td>${row.route}</td>
+            <td>${Number(row.latency_ms).toFixed(2)}</td>
+            <td><button data-index="${index}">View</button></td>
+          `;
+          body.appendChild(tr);
+        });
+        body.querySelectorAll("button").forEach((button) => {
+          button.addEventListener("click", () => {
+            const row = traces[Number(button.getAttribute("data-index"))];
+            document.getElementById("traceDetails").textContent = JSON.stringify(row, null, 2);
+          });
+        });
+      }
+      document.getElementById("refresh").addEventListener("click", loadTraces);
+      loadTraces();
+    </script>
+  </body>
+  </html>

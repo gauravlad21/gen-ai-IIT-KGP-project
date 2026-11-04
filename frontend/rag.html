@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Page 1 - RAG Setup</title>
+    <style>
+      body { font-family: Arial, sans-serif; margin: 2rem; max-width: 1000px; }
+      .card { border: 1px solid #ddd; padding: 1rem; border-radius: 8px; margin-top: 1rem; }
+      .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+      label { font-size: 0.9rem; }
+      input, select, button { padding: 0.4rem; }
+      table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
+      th, td { border: 1px solid #ddd; padding: 0.35rem; text-align: left; }
+      th { background: #f6f6f6; }
+      pre { background: #f6f6f6; padding: 0.6rem; border-radius: 6px; }
+    </style>
+  </head>
+  <body>
+    <h1>Page 1 - RAG Setup</h1>
+    <p>Select dataset/chunker/embedder/vector-db options and index data into vector DB.</p>
+    <p>
+      <a href="/pages">All pages</a> |
+      <a href="/query">Page 2: Query explorer</a> |
+      <a href="/dashboard">Page 3: Trace dashboard</a> |
+      <a href="/evaluation">Page 4: Evaluation report</a>
+    </p>
+
+    <div class="card">
+      <div class="grid">
+        <div><label>Setup name</label><br /><input id="setup_name" value="manual-setup" /></div>
+        <div><label>Dataset name</label><br /><input id="dataset_name" value="sujet-ai/Sujet-Finance-QA-Vision-100k" /></div>
+        <div><label>Sample limit</label><br /><input id="sample_limit" type="number" value="10" min="1" max="200" /></div>
+        <div><label>Vector DB</label><br /><select id="vector_db"><option value="chroma">chroma</option></select></div>
+        <div><label>Vector path</label><br /><input id="vector_path" value="data/processed/chroma" /></div>
+        <div><label>Vector collection</label><br /><input id="vector_collection" value="finance_sample" /></div>
+        <div><label>Embedder</label><br /><select id="embedder_strategy"><option value="hashing">hashing</option><option value="sentence_transformer">sentence_transformer</option></select></div>
+        <div><label>Chunking</label><br /><select id="chunking_strategy"><option value="whole">whole</option><option value="fixed">fixed</option><option value="paragraph">paragraph</option></select></div>
+        <div><label>Chunk size</label><br /><input id="chunk_size" type="number" value="800" /></div>
+        <div><label>Chunk overlap</label><br /><input id="chunk_overlap" type="number" value="100" /></div>
+        <div><label>Use saved sample only (no download)</label><br />
+          <select id="use_saved_sample"><option value="false">false</option><option value="true">true</option></select>
+        </div>
+      </div>
+      <div style="margin-top:0.8rem">
+        <button id="saveBtn">Index and save setup</button>
+      </div>
+      <pre id="result">No setup applied yet.</pre>
+    </div>
+
+    <div class="card">
+      <h3>Saved setup history</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th><th>Time</th><th>Name</th><th>Dataset</th><th>Limit</th>
+            <th>Vector DB</th><th>Path</th><th>Collection</th><th>Embedder</th><th>Chunking</th><th>Indexed QA</th>
+          </tr>
+        </thead>
+        <tbody id="setupBody"></tbody>
+      </table>
+    </div>
+
+    <script>
+      function collectPayload() {
+        return {
+          setup_name: document.getElementById("setup_name").value,
+          dataset_name: document.getElementById("dataset_name").value,
+          sample_limit: Number(document.getElementById("sample_limit").value),
+          vector_db: document.getElementById("vector_db").value,
+          vector_path: document.getElementById("vector_path").value,
+          vector_collection: document.getElementById("vector_collection").value,
+          embedder_strategy: document.getElementById("embedder_strategy").value,
+          chunking_strategy: document.getElementById("chunking_strategy").value,
+          chunk_size: Number(document.getElementById("chunk_size").value),
+          chunk_overlap: Number(document.getElementById("chunk_overlap").value),
+          use_saved_sample: document.getElementById("use_saved_sample").value === "true"
+        };
+      }
+
+      async function loadSetups() {
+        const response = await fetch("/api/rag/setups?limit=20");
+        const data = await response.json();
+        const body = document.getElementById("setupBody");
+        body.innerHTML = "";
+        data.rows.forEach((row) => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${row.id}</td><td>${row.created_at}</td><td>${row.setup_name}</td>
+            <td>${row.dataset_name}</td><td>${row.sample_limit}</td><td>${row.vector_db}</td>
+            <td>${row.vector_path}</td><td>${row.vector_collection}</td><td>${row.embedder_strategy}</td>
+            <td>${row.chunking_strategy}</td><td>${row.indexed_items}</td>
+          `;
+          body.appendChild(tr);
+        });
+      }
+
+      document.getElementById("saveBtn").addEventListener("click", async () => {
+        const payload = collectPayload();
+        const response = await fetch("/api/rag/setup", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        const data = await response.json();
+        document.getElementById("result").textContent = JSON.stringify(data, null, 2);
+        if (response.ok) loadSetups();
+      });
+
+      loadSetups();
+    </script>
+  </body>
+  </html>

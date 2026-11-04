@@ -15,6 +15,8 @@ class QueryResponse(BaseModel):
     metrics: dict
     steps: list[str]
     citations: list[dict]
+    retrieved: list[dict]
+    critiques: list[str]
 
 
 class MetricsCreateRequest(BaseModel):
@@ -32,3 +34,28 @@ class MetricsCreateRequest(BaseModel):
 class MetricsListResponse(BaseModel):
     rows: list[dict]
 
+
+class RagSetupRequest(BaseModel):
+    setup_name: str = "manual-setup"
+    dataset_name: str = "sujet-ai/Sujet-Finance-QA-Vision-100k"
+    sample_limit: int = Field(default=10, ge=1, le=200)
+    vector_db: str = "chroma"
+    vector_path: str = "data/processed/chroma"
+    vector_collection: str = "finance_sample"
+    embedder_strategy: str = "hashing"
+    chunking_strategy: str = "whole"
+    chunk_size: int = Field(default=800, ge=50, le=4000)
+    chunk_overlap: int = Field(default=100, ge=0, le=2000)
+    use_saved_sample: bool = False
+
+
+class EvaluationRequest(BaseModel):
+    run_name: str = "eval-run"
+    sample_size: int = Field(default=100, ge=1, le=500)
+    session_id: str = "eval-session"
+
+
+class EvaluationResponse(BaseModel):
+    eval_run_id: int
+    summary: dict
+    observations: list[dict]

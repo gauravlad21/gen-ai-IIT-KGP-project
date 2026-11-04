@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Page 4 - Evaluation Report</title>
+    <style>
+      body { font-family: Arial, sans-serif; margin: 2rem; }
+      .card { border: 1px solid #ddd; padding: 1rem; border-radius: 8px; margin-top: 1rem; overflow-x:auto; }
+      table { border-collapse: collapse; width: 100%; font-size: 0.88rem; }
+      th, td { border: 1px solid #ddd; padding: 0.35rem; text-align: left; vertical-align: top; }
+      th { background: #f6f6f6; }
+      input, button { padding: 0.4rem; }
+      .row { margin-top: 0.6rem; }
+    </style>
+  </head>
+  <body>
+    <h1>Page 4 - Evaluation Report</h1>
+    <p>Runs evaluation on a subset (example: 100 datapoints) and stores summary + per-datapoint observations.</p>
+    <p>
+      <a href="/pages">All pages</a> |
+      <a href="/rag">Page 1: RAG setup</a> |
+      <a href="/query">Page 2: Query explorer</a> |
+      <a href="/dashboard">Page 3: Trace dashboard</a>
+    </p>
+
+    <div class="card">
+      <div class="row">
+        <label>Run name</label>
+        <input id="runName" value="eval-100" />
+        <label style="margin-left:1rem">Sample size</label>
+        <input id="sampleSize" type="number" value="100" min="1" max="500" />
+        <button id="runEval">Run evaluation</button>
+      </div>
+      <div class="row">
+        <strong>Summary:</strong>
+        <pre id="summary">{}</pre>
+      </div>
+      <div class="row">
+        <strong>Failure taxonomy counts:</strong>
+        <pre id="taxonomy">{}</pre>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Evaluation run history</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th><th>Time</th><th>Run</th><th>Size</th>
+            <th>Faithfulness %</th><th>Accuracy %</th><th>Refusal %</th><th>Citation %</th><th>Taxonomy</th><th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="historyBody"></tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3>Per-datapoint observations</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>#</th><th>Question</th><th>Expected</th><th>Predicted</th><th>Doc</th><th>Image</th><th>Correct</th><th>Faithful</th><th>Failure category</th><th>Observation</th>
+          </tr>
+        </thead>
+        <tbody id="obsBody"></tbody>
+      </table>
+    </div>
+
+    <script>
+      async function refreshHistory() {
+        const response = await fetch("/api/evaluations?limit=20");
+        const data = await response.json();
+        const body = document.getElementById("historyBody");
+        body.innerHTML = "";
+        data.rows.forEach((row) => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${row.id}</td><td>${row.created_at}</td><td>${row.run_name}</td><td>${row.sample_size}</td>
+            <td>${row.faithfulness}</td><td>${row.answer_accuracy}</td><td>${row.refusal_rate}</td><td>${row.citation_rate}</td>
+            <td>${JSON.stringify(row.taxonomy_counts || {})}</td>
+            <td><button data-id="${row.id}">View</button></td>
+          `;
+          body.appendChild(tr);
+        });
+        body.querySelectorAll("button").forEach((btn) => {
+          btn.addEventListener("click", () => loadObservations(btn.getAttribute("data-id")));
+        });
+      }
+
+      async function loadObservations(evalRunId) {
+        const response = await fetch(`/api/evaluations/${evalRunId}?limit=300`);
+        const data = await response.json();
+        const body = document.getElementById("obsBody");
+        body.innerHTML = "";
+        data.observations.forEach((row) => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${row.point_index}</td><td>${row.question}</td><td>${row.expected_answer}</td>
+            <td>${row.predicted_answer}</td><td>${row.doc_id}</td>
+            <td>${row.image_url ? `<a href="${row.image_url}" target="_blank" rel="noopener noreferrer">Open image</a>` : ""}</td>
+            <td>${row.is_correct}</td><td>${row.is_faithful}</td><td>${row.failure_category}</td><td>${row.note}</td>
+          `;
+          body.appendChild(tr);
+        });
+      }
+
+      document.getElementById("runEval").addEventListener("click", async () => {
+        const payload = {
+          run_name: document.getElementById("runName").value || "eval-run",
+          sample_size: Number(document.getElementById("sampleSize").value || 100),
+          session_id: "eval-page"
+        };
+        const response = await fetch("/api/evaluate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        const data = await response.json();
+        document.getElementById("summary").textContent = JSON.stringify(data.summary || data, null, 2);
+        document.getElementById("taxonomy").textContent = JSON.stringify((data.summary || {}).taxonomy_counts || {}, null, 2);
+        if (response.ok) {
+          loadObservations(data.eval_run_id);
+          refreshHistory();
+        }
+      });
+
+      refreshHistory();
+    </script>
+  </body>
+  </html>

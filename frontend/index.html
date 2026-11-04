@@ -3,19 +3,28 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Financial Copilot Frontend</title>
+    <title>Page 2 - Query Explorer</title>
     <style>
-      body { font-family: Arial, sans-serif; margin: 2rem; max-width: 900px; }
+      body { font-family: Arial, sans-serif; margin: 2rem; max-width: 1100px; }
       textarea, input, button { font-size: 1rem; }
       textarea { width: 100%; min-height: 80px; }
-      .card { border: 1px solid #ddd; padding: 1rem; margin-top: 1rem; border-radius: 8px; }
+      .card { border: 1px solid #ddd; padding: 1rem; margin-top: 1rem; border-radius: 8px; overflow-x:auto; }
       pre { white-space: pre-wrap; background: #f6f6f6; padding: 0.75rem; border-radius: 6px; }
       .row { margin-top: 0.75rem; }
+      table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
+      th, td { border: 1px solid #ddd; padding: 0.35rem; text-align: left; vertical-align: top; }
+      th { background: #f6f6f6; }
     </style>
   </head>
   <body>
-    <h1>Financial Document Copilot</h1>
-    <p>Simple frontend calling FastAPI endpoint <code>/api/query</code>.</p>
+    <h1>Page 2 - Query Explorer</h1>
+    <p>Calls <code>/api/query</code> and shows chunk/image/score details with critique statements.</p>
+    <p>
+      <a href="/pages">All pages</a> |
+      <a href="/rag">Page 1: RAG setup</a> |
+      <a href="/dashboard">Page 3: Trace dashboard</a> |
+      <a href="/evaluation">Page 4: Evaluation report</a>
+    </p>
 
     <div class="card">
       <div class="row">
@@ -32,7 +41,8 @@
       </div>
       <div class="row">
         <button id="askBtn">Ask</button>
-        <a href="/dashboard" style="margin-left: 1rem">Open dashboard</a>
+        <a href="/dashboard" style="margin-left: 1rem">Open trace dashboard</a>
+        <a href="/evaluation" style="margin-left: 1rem">Open evaluation dashboard</a>
       </div>
     </div>
 
@@ -41,8 +51,28 @@
       <pre id="answer">No response yet.</pre>
       <h4>Metrics</h4>
       <pre id="metrics">{}</pre>
+      <h4>Critiques</h4>
+      <pre id="critiques">[]</pre>
       <h4>Steps</h4>
       <pre id="steps">[]</pre>
+    </div>
+
+    <div class="card">
+      <h3>Retrieved details</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Doc</th>
+            <th>Similarity</th>
+            <th>Question matched</th>
+            <th>Answer candidate</th>
+            <th>Chunk text</th>
+            <th>Image path</th>
+          </tr>
+        </thead>
+        <tbody id="retrievedBody"></tbody>
+      </table>
     </div>
 
     <script>
@@ -67,7 +97,23 @@
         document.getElementById("answer").textContent =
           `${data.answer.answer}\n\nCitations: ${JSON.stringify(data.citations)}`;
         document.getElementById("metrics").textContent = JSON.stringify(data.metrics, null, 2);
+        document.getElementById("critiques").textContent = JSON.stringify(data.critiques, null, 2);
         document.getElementById("steps").textContent = JSON.stringify(data.steps, null, 2);
+        const body = document.getElementById("retrievedBody");
+        body.innerHTML = "";
+        data.retrieved.forEach((row, idx) => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${idx + 1}</td>
+            <td>${row.doc_id}</td>
+            <td>${row.score}</td>
+            <td>${row.question}</td>
+            <td>${row.answer}</td>
+            <td>${row.chunk_text}</td>
+            <td>${row.image_path || ""}</td>
+          `;
+          body.appendChild(tr);
+        });
       });
     </script>
   </body>
