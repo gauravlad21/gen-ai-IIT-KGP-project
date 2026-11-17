@@ -1,0 +1,35 @@
+[
+  {"id": "E01", "doc_id": "175.jpeg", "category": "extraction", "question": "What is the date of Recommendation No. 6?", "answer_parts": ["April 7, 1972"], "should_refuse": false},
+  {"id": "E02", "doc_id": "3348.jpeg", "category": "extraction", "question": "What is the invoice date?", "answer_parts": ["January 18, 1993"], "should_refuse": false},
+  {"id": "E03", "doc_id": "3348.jpeg", "category": "extraction", "question": "What is the job number?", "answer_parts": ["3061"], "should_refuse": false},
+  {"id": "E04", "doc_id": "1466.jpeg", "category": "extraction", "question": "What is the estimate number?", "answer_parts": ["1093"], "should_refuse": false},
+  {"id": "E05", "doc_id": "4573.jpeg", "category": "extraction", "question": "What is the date of the check request?", "answer_parts": ["June 18 1993"], "should_refuse": false},
+  {"id": "E06", "doc_id": "5104.jpeg", "category": "extraction", "question": "How much was charged for lodging?", "answer_parts": ["$1311.95"], "should_refuse": false},
+  {"id": "E07", "doc_id": "8267.jpeg", "category": "extraction", "question": "What is the invoice number?", "answer_parts": ["95756A"], "should_refuse": false},
+  {"id": "E08", "doc_id": "1559.jpeg", "category": "extraction", "question": "What was the 1992 budget for Creative/Production?", "answer_parts": ["$495,000"], "should_refuse": false},
+  {"id": "E09", "doc_id": "1007.jpeg", "category": "extraction", "question": "What is the Q4 total?", "answer_parts": ["$179,658.72"], "should_refuse": false},
+  {"id": "E10", "doc_id": "532.jpeg", "category": "extraction", "question": "What is the account code?", "answer_parts": ["1401-7710-IL01"], "should_refuse": false},
+
+  {"id": "A01", "doc_id": "175.jpeg", "category": "arithmetic", "question": "How much greater is the total budget than the total direct costs?", "answer_parts": ["$11,313.00"], "should_refuse": false, "derivation": "36693.00 - 25380.00"},
+  {"id": "A02", "doc_id": "175.jpeg", "category": "arithmetic", "question": "What percentage of the total direct costs are the indirect costs?", "answer_parts": ["25%"], "should_refuse": false, "derivation": "6345.00 / 25380.00 * 100"},
+  {"id": "A03", "doc_id": "3348.jpeg", "category": "arithmetic", "question": "What is the total amount invoiced for the year if all 12 months are billed at the monthly rate?", "answer_parts": ["$45,000.00"], "should_refuse": false, "derivation": "3750.00 * 12"},
+  {"id": "A04", "doc_id": "4573.jpeg", "category": "arithmetic", "question": "What is the requested amount per television outlet?", "answer_parts": ["$3.20"], "should_refuse": false, "derivation": "3840.00 / 1200"},
+  {"id": "A05", "doc_id": "5104.jpeg", "category": "arithmetic", "question": "What is the combined cost of duplicating and catering services?", "answer_parts": ["$1,631.73"], "should_refuse": false, "derivation": "779.20 + 852.53"},
+  {"id": "A06", "doc_id": "1559.jpeg", "category": "arithmetic", "question": "By how much did the total budget decrease from 1992 to 1993?", "answer_parts": ["$52,000"], "should_refuse": false, "derivation": "3452000 - 3400000"},
+  {"id": "A07", "doc_id": "1007.jpeg", "category": "arithmetic", "question": "How much larger is the Q4 total than the Q1 total?", "answer_parts": ["$88,094.45"], "should_refuse": false, "derivation": "179658.52 - 91564.27"},
+  {"id": "A08", "doc_id": "803.jpeg", "category": "arithmetic", "question": "What is the total cost of installing the field start/stop push button and panel mounted for the new dilution pump?", "answer_parts": ["$145"], "should_refuse": false, "derivation": "85 + 60 "},
+
+  {"id": "M01", "doc_id": "175.jpeg", "category": "multi_part", "question": "What are the personal services amount and the current expenses amount?", "answer_parts": ["$20,070.00", "$5,310.00"], "should_refuse": false},
+  {"id": "M02", "doc_id": "3348.jpeg", "category": "multi_part", "question": "What is the company name and its monthly rate?", "answer_parts": ["Foster Posters Inc.", "$3,750.00"], "should_refuse": false},
+  {"id": "M03", "doc_id": "1559.jpeg", "category": "multi_part", "question": "What were the Incentives budgets for 1992 and for 1993?", "answer_parts": ["$75,000", "$23,000"], "should_refuse": false},
+  {"id": "M04", "doc_id": "8267.jpeg", "category": "multi_part", "question": "What is the law firm's name and the document date?", "answer_parts": ["Hagens & Berman, P.S.", "February 24, 1999"], "should_refuse": false},
+  {"id": "M05", "doc_id": "532.jpeg", "category": "multi_part", "question": "Who is the recipient and what contribution amount is requested?", "answer_parts": ["Jay C. Hoffman", "$200.00"], "should_refuse": false},
+  {"id": "M06", "doc_id": "1466.jpeg", "category": "multi_part", "question": "What are the client name, the product, and the gross amount?", "answer_parts": ["P.M. Inc.", "Alpine 85 S", "$20,860.90"], "should_refuse": false},
+
+  {"id": "U01", "doc_id": "175.jpeg", "category": "unanswerable", "question": "What bank account number was the funding sent to?", "answer_parts": [], "should_refuse": true},
+  {"id": "U02", "doc_id": "3348.jpeg", "category": "unanswerable", "question": "Who signed the invoice?", "answer_parts": [], "should_refuse": true},
+  {"id": "U03", "doc_id": "4573.jpeg", "category": "unanswerable", "question": "What is the payee's phone number?", "answer_parts": [], "should_refuse": true},
+  {"id": "U04", "doc_id": "8267.jpeg", "category": "unanswerable", "question": "What hourly rate did the attorneys charge?", "answer_parts": [], "should_refuse": true},
+  {"id": "U05", "doc_id": "1007.jpeg", "category": "unanswerable", "question": "What is the client's name?", "answer_parts": [], "should_refuse": true, "note": "The text says the client name is not explicitly mentioned; the agency name is not the client."},
+  {"id": "U06", "doc_id": "532.jpeg", "category": "unanswerable", "question": "Did the recipient win the 1998 election?", "answer_parts": [], "should_refuse": true}
+]

@@ -6,7 +6,7 @@ from src.strategies.base import PromptStrategyBase
 
 class SimplePrompt(PromptStrategyBase):
     def build(self, question: str, evidence: list[Evidence]) -> str:
-        context = "\n".join(item.text for item in evidence)
+        context = "\n".join(f"Document ID: {item.doc_id}\n{item.text}" for item in evidence)
         return f"Question: {question}\nEvidence:\n{context}"
 
 
@@ -14,7 +14,7 @@ class ZeroShotPrompt(SimplePrompt):
     def build(self, question: str, evidence: list[Evidence]) -> str:
         return (
             "You answer questions about financial documents. Use only evidence below. "
-            "If evidence is insufficient, refuse and cite the source document.\n"
+            "If evidence is insufficient, refuse without citations and explain what is missing.\n"
             + super().build(question, evidence)
         )
 

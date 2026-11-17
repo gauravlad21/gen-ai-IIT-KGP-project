@@ -74,7 +74,7 @@ class ChromaSearch(SearchStrategyBase):
         if items:
             self.collection.upsert(
                 ids=[f"{item.doc_id}:{index}" for index, item in enumerate(items)],
-                documents=[f"{item.question}\n{item.answer}\n{item.text}" for item in items],
+                documents=[item.text for item in items],
                 metadatas=[
                     {
                         "doc_id": item.doc_id,
