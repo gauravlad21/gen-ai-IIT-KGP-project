@@ -2,6 +2,7 @@
 
 import sqlite3
 import json
+from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -117,8 +118,15 @@ class MetricsStore:
             self._ensure_column(connection, "eval_observations", "failure_category", "TEXT NOT NULL DEFAULT 'none'")
             self._ensure_column(connection, "eval_observations", "image_path", "TEXT NOT NULL DEFAULT ''")
 
+    @contextmanager
     def _connect(self):
-        return sqlite3.connect(self.path)
+        # sqlite3's own context manager never closes; open handles block file deletion on Windows.
+        connection = sqlite3.connect(self.path)
+        try:
+            with connection:
+                yield connection
+        finally:
+            connection.close()
 
     @staticmethod
     def _ensure_column(connection, table_name: str, column_name: str, column_def: str) -> None:
